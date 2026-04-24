@@ -1,0 +1,65 @@
+export const ROLES = {
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  ADMIN: 'ADMIN',
+  TEACHER: 'TEACHER',
+  PARENT: 'PARENT',
+  VIEWER: 'VIEWER',
+} as const;
+
+export type Role = keyof typeof ROLES;
+
+export const ATTENDANCE_STATUS = {
+  PRESENT: 'PRESENT',
+  ABSENT: 'ABSENT',
+  LATE: 'LATE',
+  EXCUSED: 'EXCUSED',
+  HALF_DAY: 'HALF_DAY',
+} as const;
+
+export type AttendanceStatus = keyof typeof ATTENDANCE_STATUS;
+
+export const HOLIDAY_TYPE = {
+  PUBLIC: 'PUBLIC',
+  SCHOOL: 'SCHOOL',
+  SUMMER_BREAK: 'SUMMER_BREAK',
+  WINTER_BREAK: 'WINTER_BREAK',
+  SPRING_BREAK: 'SPRING_BREAK',
+  EXAM_PERIOD: 'EXAM_PERIOD',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export const ATTENDANCE_THRESHOLDS = {
+  EXCELLENT: 90,
+  GOOD: 75,
+  WARNING: 60,
+} as const;
+
+export const LATE_THRESHOLDS = {
+  PRESENT_MAX: 15,
+  LATE_MAX: 60,
+} as const;
+
+export const CONSECUTIVE_ABSENCE_ALERTS = {
+  PARENT_NOTIFY: 3,
+  ADMIN_ESCALATE: 5,
+} as const;
+
+export const PAGINATION = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_LIMIT: 20,
+  MAX_LIMIT: 100,
+} as const;
+
+export const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  NO_CONTENT: 204,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE: 422,
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_ERROR: 500,
+} as const;

@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  TEACHER
+  PARENT
+  VIEWER
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+  HALF_DAY
+}
+
+enum HolidayType {
+  PUBLIC
+  SCHOOL
+  SUMMER_BREAK
+  WINTER_BREAK
+  SPRING_BREAK
+  EXAM_PERIOD
+  CUSTOM
+}
+
+enum NotificationType {
+  ABSENCE_ALERT
+  AT_RISK
+  ATTENDANCE_REMINDER
+  ENROLLMENT
+  HOLIDAY_UPDATE
+  SYSTEM
+}
+
+model School {
+  id                 String    @id @default(cuid())
+  name               String
+  address            String?
+  phone              String?
+  email              String    @unique
+  logoUrl            String?
+  academicYearStart  DateTime
+  academicYearEnd    DateTime
+  timezone           String    @default("UTC")
+  country            String    @default("US")
+  workingDays        Int[]     @default([1, 2, 3, 4, 5])
+  lateThresholdMin   Int       @default(15)
+  absenceThreshold   Float     @default(75.0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  users           User[]
+  teachers        Teacher[]
+  classes         Class[]
+  students        Student[]
+  holidays        Holiday[]
+  academicTerms   AcademicTerm[]
+
+  @@map("schools")
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  passwordHash        String
+  role                Role
+  firstName           String
+  lastName            String
+  phone               String?
+  avatarUrl           String?
+  isActive            Boolean   @default(true)
+  lastLoginAt         DateTime?
+  passwordChangedAt   DateTime?
+  mustChangePassword  Boolean   @default(false)
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  tokenVersion        Int       @default(0)
+  schoolId            String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  school            School?         @relation(fields: [schoolId], references: [id])
+  teacher           Teacher?
+  students          Student[]       @relation("ParentStudents")
+  markedAttendances Attendance[]    @relation("MarkedBy")
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  loginLogs         LoginAuditLog[]
+
+  @@map("users")
+}
+
+model Teacher {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  employeeId    String    @unique
+  department    String?
+  qualification String?
+  joiningDate   DateTime
+  schoolId      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school        School    @relation(fields: [schoolId], references: [id])
+  classes       Class[]   @relation("TeacherClasses")
+
+  @@map("teachers")
+}
+
+model Class {
+  id            String    @id @default(cuid())
+  name          String
+  grade         String
+  section       String
+  academicYear  String
+  roomNumber    String?
+  capacity      Int       @default(30)
+  schoolId      String
+  teacherId     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  school        School    @relation(fields: [schoolId], references: [id])
+  teacher       Teacher?  @relation("TeacherClasses", fields: [teacherId], references: [id])
+  students      Student[]
+  attendances   Attendance[]
+
+  @@unique([name, academicYear, schoolId])
+  @@map("classes")
+}
+
+model Student {
+  id               String    @id @default(cuid())
+  studentId        String    @unique
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime
+  gender           String
+  bloodGroup       String?
+  address          String?
+  photoUrl         String?
+  enrollmentDate   DateTime
+  isActive         Boolean   @default(true)
+  classId          String
+  schoolId         String
+  parentId         String?
+  emergencyContact Json?
+  medicalNotes     String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  class            Class     @relation(fields: [classId], references: [id])
+  school           School    @relation(fields: [schoolId], references: [id])
+  parent           User?     @relation("ParentStudents", fields: [parentId], references: [id])
+  attendances      Attendance[]
+
+  @@map("students")
+}
+
+model Attendance {
+  id           String           @id @default(cuid())
+  studentId    String
+  classId      String
+  date         DateTime         @db.Date
+  status       AttendanceStatus
+  markedById   String
+  note         String?
+  checkInTime  DateTime?
+  checkOutTime DateTime?
+  lateMinutes  Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  student      Student          @relation(fields: [studentId], references: [id])
+  class        Class            @relation(fields: [classId], references: [id])
+  markedBy     User             @relation("MarkedBy", fields: [markedById], references: [id])
+
+  @@unique([studentId, date])
+  @@index([classId, date])
+  @@index([studentId, date])
+  @@map("attendances")
+}
+
+model Holiday {
+  id           String      @id @default(cuid())
+  schoolId     String
+  name         String
+  date         DateTime    @db.Date
+  endDate      DateTime?   @db.Date
+  type         HolidayType
+  isRecurring  Boolean     @default(false)
+  description  String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  school       School      @relation(fields: [schoolId], references: [id])
+
+  @@map("holidays")
+}
+
+model AcademicTerm {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school    School   @relation(fields: [schoolId], references: [id])
+
+  @@map("academic_terms")
+}
+
+model Notification {
+  id              String           @id @default(cuid())
+  userId          String
+  title           String
+  message         String
+  type            NotificationType
+  isRead          Boolean          @default(false)
+  relatedEntityId String?
+  createdAt       DateTime         @default(now())
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model LoginAuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  success   Boolean
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("login_audit_logs")
+}

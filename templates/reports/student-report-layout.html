@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Attendance Report</title>
+  <style>
+    @page { margin: 2cm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; font-size: 13px; }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    .subtitle { color: #6b7280; font-size: 12px; margin-bottom: 24px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #f9fafb; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+    .info-item label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; }
+    .info-item p { margin: 2px 0 0; font-weight: 600; }
+    .stats { display: flex; gap: 12px; margin-bottom: 24px; }
+    .stat-box { flex: 1; text-align: center; padding: 14px; border-radius: 8px; border: 1px solid #e5e7eb; }
+    .stat-box .num { font-size: 26px; font-weight: 700; }
+    .stat-box .lbl { font-size: 11px; color: #6b7280; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f3f4f6; padding: 8px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+    td { padding: 8px 12px; border-bottom: 1px solid #f3f4f6; }
+    .PRESENT { color: #059669; } .ABSENT { color: #dc2626; } .LATE { color: #d97706; } .EXCUSED { color: #2563eb; } .HALF_DAY { color: #7c3aed; }
+  </style>
+</head>
+<body>
+  <h1>Student Attendance Report</h1>
+  <p class="subtitle">Generated on {{generatedAt}} &middot; Period: {{period}}</p>
+
+  <div class="info-grid">
+    <div class="info-item"><label>Student Name</label><p>{{studentName}}</p></div>
+    <div class="info-item"><label>Student ID</label><p>{{studentId}}</p></div>
+    <div class="info-item"><label>Class</label><p>{{className}}</p></div>
+    <div class="info-item"><label>Academic Year</label><p>{{academicYear}}</p></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-box"><div class="num" style="color:#059669">{{presentDays}}</div><div class="lbl">Present</div></div>
+    <div class="stat-box"><div class="num" style="color:#dc2626">{{absentDays}}</div><div class="lbl">Absent</div></div>
+    <div class="stat-box"><div class="num" style="color:#d97706">{{lateDays}}</div><div class="lbl">Late</div></div>
+    <div class="stat-box"><div class="num" style="color:#3b82f6">{{attendancePct}}%</div><div class="lbl">Attendance</div></div>
+  </div>
+
+  <table>
+    <thead><tr><th>Date</th><th>Day</th><th>Status</th><th>Late (min)</th><th>Note</th></tr></thead>
+    <tbody>
+      {{#each records}}
+      <tr>
+        <td>{{date}}</td>
+        <td>{{day}}</td>
+        <td class="{{status}}"><strong>{{status}}</strong></td>
+        <td>{{#if lateMinutes}}{{lateMinutes}}{{else}}&mdash;{{/if}}</td>
+        <td>{{#if note}}{{note}}{{else}}&mdash;{{/if}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</body>
+</html>

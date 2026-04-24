@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Weekly Attendance Report</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 24px; }
+    .card { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .header { background: #10b981; color: #fff; padding: 24px 32px; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .body { padding: 28px 32px; color: #374151; line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    th { background: #f3f4f6; padding: 10px 14px; text-align: left; font-weight: 600; color: #374151; }
+    td { padding: 10px 14px; border-bottom: 1px solid #e5e7eb; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .excellent { background: #d1fae5; color: #065f46; }
+    .good { background: #dbeafe; color: #1e40af; }
+    .warning { background: #fef3c7; color: #92400e; }
+    .at-risk { background: #fee2e2; color: #991b1b; }
+    .footer { padding: 16px 32px; background: #f9fafb; color: #9ca3af; font-size: 12px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header"><h1>&#x1F4CA; Weekly Attendance Report</h1><p style="margin:4px 0 0;opacity:.85;">{{weekRange}}</p></div>
+    <div class="body">
+      <p>Dear Admin,</p>
+      <p>Here is the attendance summary for the week of <strong>{{weekRange}}</strong>:</p>
+      <table>
+        <thead><tr><th>Class</th><th>Avg Attendance</th><th>At Risk</th><th>Status</th></tr></thead>
+        <tbody>
+          {{#each classes}}
+          <tr>
+            <td>{{name}}</td>
+            <td>{{avgAttendance}}%</td>
+            <td>{{atRiskCount}}</td>
+            <td><span class="badge {{tierClass}}">{{tier}}</span></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <div class="footer">Generated automatically by SchoolAttend. Do not reply to this email.</div>
+  </div>
+</body>
+</html>
