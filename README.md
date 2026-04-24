@@ -525,25 +525,6 @@ VITE_API_URL=/api/v1
 
 ---
 
-## Default Seed Credentials
-
-After running `npx prisma db seed`, the following accounts are available for testing:
-
-| Role | Email | Password |
-|---|---|---|
-| Admin | admin@greenfield.edu | Admin@1234 |
-| Parent | parent@example.com | Parent@1234 |
-| Teachers (×5) | teacher1@greenfield.edu … | Teacher@1234 |
-
-The seed also creates:
-- **School:** Greenfield Academy (Chicago timezone)
-- **4 Classes** with students enrolled
-- **Sample holiday calendar** for 2025–2026
-
-**Change all default passwords before going live.**
-
----
-
 ## Considerations for Schools
 
 Before deploying this system, schools should address the following:
